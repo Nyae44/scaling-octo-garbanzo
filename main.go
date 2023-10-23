@@ -26,21 +26,25 @@ var payments = []Payment{
 
 // A handler to return all payments
 func getPayments(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, payments)
+	c.IndentedJSON(http.StatusOK, payments) // IndentedJson serializes the struct into JSON and adds it  to the response
 }
 
-// A handler to return payments by ID
-func getPaymentByID(c *gin.Context) {
-	payment := &payments[0] // Get the first element of the array
-	if c.Param("id") == payment.ID {
-		c.IndentedJSON(http.StatusOK, payment)
-	} else {
-		c.IndentedJSON(http.StatusNotFound, gin.H{"message": "No payment found with that id."})
+// A handler to add a new payment from JSON received in the request body
+// Th
+func postPayments(c *gin.Context) {
+	var newPayment Payment
+	// Call BindJson to bind the received JSON to newPayment
+	if err := c.BindJSON(&newPayment); err != nil {
+		return
 	}
+	// Add the new payment to slice
+	payments = append(payments, newPayment)
+	c.IndentedJSON(http.StatusCreated, newPayment)
 }
+
 func main() {
 	router := gin.Default()
 	router.GET("/payments", getPayments)
-	router.GET("/payments/:id", getPaymentByID)
+	router.POST("/payments", postPayments)
 	router.Run("localhost:8080")
 }
