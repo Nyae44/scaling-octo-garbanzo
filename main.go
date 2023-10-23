@@ -42,9 +42,26 @@ func postPayments(c *gin.Context) {
 	c.IndentedJSON(http.StatusCreated, newPayment)
 }
 
+// A handler to return a specific payment by unique ID
+// getPaymentByID locates the payment whose ID value matches the id
+// parameter sent by the client, then returns that album as the response
+func getPaymentById(c *gin.Context) {
+	id := c.Param("id")
+	// loop over the list of payments, looking for
+	// a payment whose id value matches the parameter
+	for _, p := range payments {
+		if p.ID == id {
+			c.IndentedJSON(http.StatusOK, p)
+			return
+		}
+	}
+	c.IndentedJSON(http.StatusNotFound, gin.H{"message": "payment not found"})
+}
+
 func main() {
 	router := gin.Default()
 	router.GET("/payments", getPayments)
+	router.GET("/payments/:id", getPaymentById)
 	router.POST("/payments", postPayments)
 	router.Run("localhost:8080")
 }
